@@ -1,0 +1,23 @@
+# Maven
+target/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local Spring Boot state
+spring.log
