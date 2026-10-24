@@ -2,7 +2,7 @@
 
 BackendForge is a reusable Spring Boot foundation for building secure, maintainable REST APIs. It uses Java 21, Maven, PostgreSQL, Spring Data JPA, Spring Security, Bean Validation, Flyway, and OpenAPI documentation.
 
-This foundation includes PostgreSQL persistence, user registration, and JWT-based authentication. Business endpoints, Docker configuration, and deployment configuration remain outside the current scope.
+This foundation includes PostgreSQL persistence, user registration, JWT-based authentication, and reproducible local Docker development.
 
 ## Prerequisites
 
@@ -27,13 +27,16 @@ The application reads database settings from environment variables and provides 
 | `DB_URL` | `jdbc:postgresql://localhost:5432/backendforge` | PostgreSQL JDBC URL |
 | `DB_USERNAME` | `backendforge` | Database username |
 | `DB_PASSWORD` | `backendforge` | Database password |
+| `POSTGRES_DB` | `backendforge` | Compose PostgreSQL database name |
+| `POSTGRES_USER` | `backendforge` | Compose PostgreSQL username |
+| `POSTGRES_PASSWORD` | required for Compose | Compose PostgreSQL password |
 | `SERVER_PORT` | `8080` | HTTP port |
 | `JWT_SECRET` | required | Base64-encoded JWT signing secret decoding to at least 32 bytes |
 | `JWT_EXPIRATION_SECONDS` | `900` | Access-token lifetime in seconds |
 | `JWT_ISSUER` | `backendforge` | Required issuer claim for access tokens |
 | `JWT_AUDIENCE` | `backendforge-api` | Required audience claim for access tokens |
 
-Copy `.env.example` to `.env` for local reference, then export the variables through your shell or IDE. Do not commit `.env` or real credentials.
+Copy `.env.example` to `.env` for Docker Compose. Compose reads `.env` for interpolation and explicitly passes the required application variables to the backend container; Spring Boot does not load `.env` files automatically. Do not commit `.env` or real credentials. For Compose, `DB_URL` must use `jdbc:postgresql://postgres:5432/backendforge`. For host execution against the existing PostgreSQL container, use `jdbc:postgresql://localhost:5433/backendforge` instead.
 
 The database schema is set to `validate`, and Flyway applies versioned migrations from `src/main/resources/db/migration`. The first migration creates the `users` table with a UUID primary key, unique email address, password hash storage, enabled status, and creation/update timestamps. Application startup does not load `.env` automatically; export the variables in your shell or configure them in your IDE.
 
@@ -79,6 +82,49 @@ mvn spring-boot:run
 ```
 
 The application listens on `http://localhost:8080` by default. OpenAPI JSON is exposed at `/v3/api-docs`, and the Swagger UI is available at `/swagger-ui.html`.
+
+## Docker local development
+
+### Prerequisites
+
+- Docker Desktop or another Docker-compatible runtime with Compose support
+- A local `.env` file created from `.env.example`
+- A Base64-encoded JWT secret that decodes to at least 32 bytes
+
+Generate a suitable development secret with:
+
+```bash
+openssl rand -base64 32
+```
+
+Set the generated value as `JWT_SECRET` in `.env`. Use different credentials and secrets for shared or production environments.
+
+### Start the isolated Compose environment
+
+The Compose environment uses its own PostgreSQL service and named volume. It does not use the existing `backendforge-postgres` container or the `backendforge-postgres-data` volume.
+
+```bash
+docker compose up --build
+```
+
+The backend is available at `http://localhost:8080`, OpenAPI JSON at `http://localhost:8080/v3/api-docs`, and Swagger UI at `http://localhost:8080/swagger-ui.html`. Compose PostgreSQL is available from the host at `localhost:5434`; inside Compose, the backend connects to `postgres:5432`.
+
+The existing host PostgreSQL container remains separate at `localhost:5433`. Always check `DB_URL` before running host-based commands so that migrations and application requests target the intended database. Do not use the existing host URL in the Compose backend configuration.
+
+Stop the Compose services without deleting their data with:
+
+```bash
+docker compose down
+```
+
+The Compose database persists in the `backendforge-compose-postgres-data` volume. Do not use volume-prune commands. The existing `backendforge-postgres-data` volume is unrelated and must not be removed or reused.
+
+Common startup problems:
+
+- If port `8080` is already in use, stop the conflicting local process or set a different `SERVER_PORT` and matching host mapping.
+- If port `5434` is already in use, change only the host side of the PostgreSQL mapping in `compose.yaml`.
+- If the backend cannot connect to PostgreSQL, verify that `POSTGRES_PASSWORD` and `DB_PASSWORD` are set and match in `.env`, then inspect `docker compose logs postgres` without printing credentials.
+- If JWT startup validation fails, replace `JWT_SECRET` with a Base64 value that decodes to at least 32 bytes and verify the issuer, audience, and expiration settings.
 
 ## Project structure
 

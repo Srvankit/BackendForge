@@ -189,12 +189,12 @@ class UserAuthenticationIntegrationTest {
     }
 
     @Test
-    void requiresAuthenticationForProtectedEndpoint() throws Exception {
+    void permitsOpenApiDocumentationAndRequiresAuthenticationForOtherProtectedEndpoints() throws Exception {
         register();
         String token = loginToken();
 
         mockMvc.perform(get("/v3/api-docs"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
 
         mockMvc.perform(get("/v3/api-docs")
                         .header("Authorization", "Bearer " + token))
@@ -202,6 +202,21 @@ class UserAuthenticationIntegrationTest {
 
         mockMvc.perform(get("/v3/api-docs")
                         .header("Authorization", "Bearer malformed"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void permitsSwaggerUiAndYamlDocumentationWithoutAuthentication() throws Exception {
+        mockMvc.perform(get("/swagger-ui.html"))
+                .andExpect(status().is3xxRedirection());
+
+        mockMvc.perform(get("/swagger-ui/index.html"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/v3/api-docs.yaml"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/v1/protected-resource"))
                 .andExpect(status().isUnauthorized());
     }
 
