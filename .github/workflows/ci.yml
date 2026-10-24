@@ -1,0 +1,42 @@
+name: Continuous integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run Maven tests
+        run: mvn clean test
+
+      - name: Validate Docker Compose configuration
+        env:
+          POSTGRES_PASSWORD: ci-postgres-password
+          DB_PASSWORD: ci-postgres-password
+          JWT_SECRET: VGhpcyBpcyBhIHNhZmUgQ0kgc2VjcmV0IHRoYXQgZGVjb2RlcyB0byBtb3JlIHRoYW4gMzIgYnl0ZXM=
+        run: docker compose config --quiet
+
+      - name: Build Docker image
+        run: docker build --tag backendforge:ci .
