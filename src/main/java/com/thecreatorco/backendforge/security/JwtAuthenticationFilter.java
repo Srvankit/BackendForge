@@ -66,6 +66,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserEntity user = userRepository.findById(userId)
                     .filter(UserEntity::isEnabled)
                     .orElseThrow(() -> new JwtException("User is not available"));
+            String tokenEmail = claims.get("email", String.class);
+            if (!user.getEmail().equals(tokenEmail)) {
+                throw new JwtException("Token identity does not match the current user");
+            }
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(user, null, userAuthorities());

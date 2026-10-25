@@ -221,6 +221,20 @@ class UserAuthenticationIntegrationTest {
     }
 
     @Test
+    void exposesReadinessHealthWithoutAuthenticationAndWithoutDetails() throws Exception {
+        mockMvc.perform(get("/actuator/health/readiness"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").doesNotExist());
+    }
+
+    @Test
+    void doesNotExposeOtherActuatorEndpoints() throws Exception {
+        mockMvc.perform(get("/actuator/env"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void rejectsPreviouslyIssuedTokenAfterAccountIsDisabled() throws Exception {
         register();
         String token = loginToken();
@@ -233,6 +247,32 @@ class UserAuthenticationIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
                 .andExpect(jsonPath("$.accessToken").doesNotExist());
+    }
+
+    @Test
+    void rejectsTokenWhenEmailClaimDoesNotMatchCurrentUser() throws Exception {
+        register();
+        UserEntity user = userRepository.findByEmail(EMAIL).orElseThrow();
+
+        assertUnauthorized(tokenWithClaims(user, "other@example.com",
+                JWT_ISSUER, JWT_AUDIENCE, "access"));
+    }
+
+    @Test
+    void rejectsPreviouslyIssuedTokenAfterEmailChanges() throws Exception {
+        register();
+        String token = loginToken();
+        UserEntity user = userRepository.findByEmail(EMAIL).orElseThrow();
+        Instant now = Instant.now();
+        userRepository.saveAndFlush(new UserEntity(
+                user.getId(),
+                "updated@example.com",
+                user.getPasswordHash(),
+                true,
+                user.getCreatedAt(),
+                now));
+
+        assertUnauthorized(token);
     }
 
     @Test
@@ -357,9 +397,18 @@ class UserAuthenticationIntegrationTest {
             String issuer,
             String audience,
             String tokenUse) {
+        return tokenWithClaims(user, user.getEmail(), issuer, audience, tokenUse);
+    }
+
+    private String tokenWithClaims(
+            UserEntity user,
+            String email,
+            String issuer,
+            String audience,
+            String tokenUse) {
         var builder = Jwts.builder()
                         .subject(user.getId().toString())
-                        .claim("email", user.getEmail())
+                        .claim("email", email)
                         .issuedAt(new Date())
                         .expiration(new Date(System.currentTimeMillis() + 60_000));
         if (issuer != null) {

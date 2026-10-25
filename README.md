@@ -20,7 +20,7 @@ mvn -version
 
 ## Configuration
 
-The application reads database settings from environment variables and provides safe local-development defaults:
+The default profile is intended for local development and provides safe local-development defaults:
 
 | Variable | Default | Description |
 | --- | --- | --- |
@@ -36,11 +36,13 @@ The application reads database settings from environment variables and provides 
 | `JWT_ISSUER` | `backendforge` | Required issuer claim for access tokens |
 | `JWT_AUDIENCE` | `backendforge-api` | Required audience claim for access tokens |
 
-Copy `.env.example` to `.env` for Docker Compose. Compose reads `.env` for interpolation and explicitly passes the required application variables to the backend container; Spring Boot does not load `.env` files automatically. Do not commit `.env` or real credentials. For Compose, `DB_URL` must use `jdbc:postgresql://postgres:5432/backendforge`. For host execution against the existing PostgreSQL container, use `jdbc:postgresql://localhost:5433/backendforge` instead.
+Copy `.env.example` to `.env` for Docker Compose. Compose reads `.env` for interpolation and explicitly passes the required application variables to the backend container; Spring Boot does not load `.env` files automatically. Compose derives the backend database URL, username, and password from `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`, so customized PostgreSQL credentials remain aligned. For host execution against the existing PostgreSQL container, use `jdbc:postgresql://localhost:5433/backendforge` instead.
+
+For production, activate the explicit `prod` profile with `SPRING_PROFILES_ACTIVE=prod` and provide `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `JWT_EXPIRATION_SECONDS`, `JWT_ISSUER`, and `JWT_AUDIENCE`. The production profile has no database or JWT defaults and fails during startup when any required setting is missing or invalid. Generate a secret with `openssl rand -base64 32`; never reuse the example values or commit production credentials.
 
 The database schema is set to `validate`, and Flyway applies versioned migrations from `src/main/resources/db/migration`. The first migration creates the `users` table with a UUID primary key, unique email address, password hash storage, enabled status, and creation/update timestamps. Application startup does not load `.env` automatically; export the variables in your shell or configure them in your IDE.
 
-User registration is available at `POST /api/v1/auth/register`. The endpoint trims and lowercases email addresses, hashes passwords with BCrypt, and returns only the user ID, normalized email, enabled status, and creation timestamp. Passwords must be between 12 and 128 characters; no arbitrary composition rules are imposed.
+User registration is available at `POST /api/v1/auth/register`. The endpoint trims and lowercases email addresses, hashes passwords with BCrypt, and returns only the user ID, normalized email, enabled status, and creation timestamp. New passwords must be between 12 and 128 characters and no more than 72 UTF-8 bytes, which matches BCrypt's effective input limit. Multibyte passwords are measured by encoded UTF-8 byte length; new registrations over the limit are rejected rather than silently truncated. The existing login character limit is retained so previously stored password hashes remain usable.
 
 Login is available at `POST /api/v1/auth/login`:
 
@@ -81,7 +83,7 @@ After PostgreSQL is available and the environment variables are configured, star
 mvn spring-boot:run
 ```
 
-The application listens on `http://localhost:8080` by default. OpenAPI JSON is exposed at `/v3/api-docs`, and the Swagger UI is available at `/swagger-ui.html`.
+The application listens on `http://localhost:8080` by default. OpenAPI JSON is exposed at `/v3/api-docs`, and the Swagger UI is available at `/swagger-ui.html`. Readiness is available at `/actuator/health/readiness`; only health endpoints are exposed by the management API, and health details are intentionally hidden.
 
 ## Docker local development
 
@@ -97,7 +99,7 @@ Generate a suitable development secret with:
 openssl rand -base64 32
 ```
 
-Set the generated value as `JWT_SECRET` in `.env`. Use different credentials and secrets for shared or production environments.
+Set the generated value as `JWT_SECRET` in `.env`. Compose activates the `prod` profile and passes all required settings explicitly. Use different credentials and secrets for shared or production environments.
 
 ### Start the isolated Compose environment
 
@@ -107,7 +109,7 @@ The Compose environment uses its own PostgreSQL service and named volume. It doe
 docker compose up --build
 ```
 
-The backend is available at `http://localhost:8080`, OpenAPI JSON at `http://localhost:8080/v3/api-docs`, and Swagger UI at `http://localhost:8080/swagger-ui.html`. Compose PostgreSQL is available from the host at `localhost:5434`; inside Compose, the backend connects to `postgres:5432`.
+The backend is available at `http://localhost:8080`, OpenAPI JSON at `http://localhost:8080/v3/api-docs`, and Swagger UI at `http://localhost:8080/swagger-ui.html`. Compose PostgreSQL is available from the host at `localhost:5434`; inside Compose, the backend connects to `postgres:5432`. Compose waits for PostgreSQL health and reports backend readiness through `/actuator/health/readiness`.
 
 The existing host PostgreSQL container remains separate at `localhost:5433`. Always check `DB_URL` before running host-based commands so that migrations and application requests target the intended database. Do not use the existing host URL in the Compose backend configuration.
 
@@ -123,7 +125,8 @@ Common startup problems:
 
 - If port `8080` is already in use, stop the conflicting local process or set a different `SERVER_PORT` and matching host mapping.
 - If port `5434` is already in use, change only the host side of the PostgreSQL mapping in `compose.yaml`.
-- If the backend cannot connect to PostgreSQL, verify that `POSTGRES_PASSWORD` and `DB_PASSWORD` are set and match in `.env`, then inspect `docker compose logs postgres` without printing credentials.
+- If the backend cannot connect to PostgreSQL, verify that `POSTGRES_PASSWORD` is set in `.env` and inspect `docker compose logs postgres` without printing credentials.
+- If the backend remains unhealthy, check `docker compose ps` and inspect backend logs for startup or migration errors. The health check uses the image's installed `curl` utility and does not expose health details.
 - If JWT startup validation fails, replace `JWT_SECRET` with a Base64 value that decodes to at least 32 bytes and verify the issuer, audience, and expiration settings.
 
 ## Project structure

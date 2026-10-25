@@ -1,6 +1,7 @@
 package com.thecreatorco.backendforge.user;
 
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ public class UserService {
 
     public static final int MIN_PASSWORD_LENGTH = 12;
     public static final int MAX_PASSWORD_LENGTH = 128;
+    public static final int MAX_PASSWORD_BYTES = 72;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -104,9 +106,11 @@ public class UserService {
         if (password == null
                 || password.length() < MIN_PASSWORD_LENGTH
                 || password.length() > MAX_PASSWORD_LENGTH
-                || password.isBlank()) {
+                || password.isBlank()
+                || password.getBytes(StandardCharsets.UTF_8).length > MAX_PASSWORD_BYTES) {
             throw new IllegalArgumentException(
-                    "Password must be between 12 and 128 characters");
+                    "Password must be between 12 and 128 characters and no more than "
+                            + MAX_PASSWORD_BYTES + " UTF-8 bytes");
         }
     }
 }

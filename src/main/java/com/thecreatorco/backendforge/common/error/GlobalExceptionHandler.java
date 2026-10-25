@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
         return errorResponse(
                 HttpStatus.BAD_REQUEST,
                 "VALIDATION_ERROR",
-                exception.getMessage(),
+                "Request contains invalid values",
                 Map.of());
     }
 
@@ -100,7 +100,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     ResponseEntity<ApiError> handleUnexpected(Exception exception) {
-        LOGGER.error("Unexpected error while processing request", exception);
+        LOGGER.error(
+                "Unexpected error while processing request: {}",
+                exception.getClass().getName());
         return errorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "INTERNAL_SERVER_ERROR",

@@ -13,5 +13,6 @@ public record UserRegistrationRequest(
         @NotBlank(message = "Password is required")
         @Size(min = UserService.MIN_PASSWORD_LENGTH, max = UserService.MAX_PASSWORD_LENGTH,
                 message = "Password must be between 12 and 128 characters")
+        @PasswordByteLength
         String password) {
 }

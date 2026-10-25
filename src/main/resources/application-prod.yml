@@ -1,0 +1,25 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-seconds: ${JWT_EXPIRATION_SECONDS}
+  issuer: ${JWT_ISSUER}
+  audience: ${JWT_AUDIENCE}
+
+backendforge:
+  production:
+    db-url: ${DB_URL}
+    db-username: ${DB_USERNAME}
+    db-password: ${DB_PASSWORD}
+    jwt-secret: ${JWT_SECRET}
+    jwt-issuer: ${JWT_ISSUER}
+    jwt-audience: ${JWT_AUDIENCE}
+    jwt-expiration-seconds: ${JWT_EXPIRATION_SECONDS}

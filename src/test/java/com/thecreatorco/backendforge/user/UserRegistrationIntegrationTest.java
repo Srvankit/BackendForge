@@ -128,6 +128,19 @@ class UserRegistrationIntegrationTest {
     }
 
     @Test
+    void rejectsPasswordAboveBcryptUtf8ByteLimit() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"user@example.com","password":"%s"}
+                                """.formatted("😀".repeat(19))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.fieldErrors.password").value(
+                        "Password must not exceed 72 UTF-8 bytes"));
+    }
+
+    @Test
     void rejectsMalformedJsonWithSafeApiError() throws Exception {
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
