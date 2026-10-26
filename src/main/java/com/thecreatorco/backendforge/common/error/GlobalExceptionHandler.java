@@ -9,10 +9,13 @@ import com.thecreatorco.backendforge.ratelimit.RateLimitExceededException;
 import com.thecreatorco.backendforge.user.DuplicateEmailException;
 import com.thecreatorco.backendforge.user.InvalidCredentialsException;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -100,7 +103,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RateLimitExceededException.class)
-    ResponseEntity<ApiError> handleRateLimitExceeded(RateLimitExceededException exception) {
+    public ResponseEntity<ApiError> handleRateLimitExceeded(
+            RateLimitExceededException exception,
+            HttpServletRequest request) {
+        String method = request != null ? request.getMethod() : "UNKNOWN";
+        String uri = request != null ? request.getRequestURI() : "UNKNOWN";
+        String remoteAddr = request != null ? request.getRemoteAddr() : "UNKNOWN";
+        LOGGER.warn(
+                "Rate limit exceeded for {} {} from remote address: {}, retry-after: {}s",
+                method,
+                uri,
+                remoteAddr,
+                exception.getRetryAfterSeconds());
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                 .header("Retry-After", Long.toString(exception.getRetryAfterSeconds()))
                 .body(new ApiError(
@@ -111,16 +125,52 @@ public class GlobalExceptionHandler {
                         Map.of()));
     }
 
+    public ResponseEntity<ApiError> handleRateLimitExceeded(RateLimitExceededException exception) {
+        return handleRateLimitExceeded(exception, null);
+    }
+
+    @ExceptionHandler(RequestRejectedException.class)
+    public ResponseEntity<ApiError> handleRequestRejected(
+            RequestRejectedException exception,
+            HttpServletRequest request) {
+        String method = request != null ? request.getMethod() : "UNKNOWN";
+        String uri = request != null ? request.getRequestURI() : "UNKNOWN";
+        LOGGER.warn(
+                "Request rejected due to invalid request format for {} {}: {}",
+                method,
+                uri,
+                exception.getClass().getSimpleName());
+        return errorResponse(
+                HttpStatus.BAD_REQUEST,
+                "BAD_REQUEST",
+                "The request was rejected due to malformed or disallowed input",
+                Map.of());
+    }
+
+    public ResponseEntity<ApiError> handleRequestRejected(RequestRejectedException exception) {
+        return handleRequestRejected(exception, null);
+    }
+
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ApiError> handleUnexpected(Exception exception) {
+    public ResponseEntity<ApiError> handleUnexpected(
+            Exception exception,
+            HttpServletRequest request) {
+        String method = request != null ? request.getMethod() : "UNKNOWN";
+        String uri = request != null ? request.getRequestURI() : "UNKNOWN";
         LOGGER.error(
-                "Unexpected error while processing request: {}",
+                "Unexpected error while processing request {} {}: {}",
+                method,
+                uri,
                 exception.getClass().getName());
         return errorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "INTERNAL_SERVER_ERROR",
                 "An unexpected error occurred",
                 Map.of());
+    }
+
+    public ResponseEntity<ApiError> handleUnexpected(Exception exception) {
+        return handleUnexpected(exception, null);
     }
 
     private ResponseEntity<ApiError> errorResponse(

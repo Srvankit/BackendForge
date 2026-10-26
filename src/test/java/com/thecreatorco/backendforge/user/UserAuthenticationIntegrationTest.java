@@ -3,6 +3,7 @@ package com.thecreatorco.backendforge.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -252,6 +253,87 @@ class UserAuthenticationIntegrationTest {
     void doesNotExposeOtherActuatorEndpoints() throws Exception {
         mockMvc.perform(get("/actuator/env"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void includesCorrelationIdHeaderInAllResponses() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(header().exists("X-Correlation-ID"));
+
+        mockMvc.perform(get("/api/v1/protected-resource"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().exists("X-Correlation-ID"));
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"bad-json\""))
+                .andExpect(status().isBadRequest())
+                .andExpect(header().exists("X-Correlation-ID"));
+    }
+
+    @Test
+    void preservesValidIncomingCorrelationIdInResponse() throws Exception {
+        mockMvc.perform(get("/actuator/health")
+                        .header("X-Correlation-ID", "corr-valid-12345"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Correlation-ID", "corr-valid-12345"));
+    }
+
+    @Test
+    void sanitizesMalformedCorrelationIdInResponse() throws Exception {
+        var result = mockMvc.perform(get("/actuator/health")
+                        .header("X-Correlation-ID", "malicious with spaces and <chars>"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String correlationId = result.getResponse().getHeader("X-Correlation-ID");
+        assertThat(correlationId).isNotNull();
+        assertThat(correlationId).doesNotContain(" ", "<", ">", "malicious");
+        assertThat(UUID.fromString(correlationId)).isNotNull();
+    }
+
+    @Test
+    void sanitizesExcessivelyLongCorrelationIdInResponse() throws Exception {
+        var result = mockMvc.perform(get("/actuator/health")
+                        .header("X-Correlation-ID", "a".repeat(100)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String correlationId = result.getResponse().getHeader("X-Correlation-ID");
+        assertThat(correlationId).isNotNull();
+        assertThat(correlationId).isNotEqualTo("a".repeat(100));
+        assertThat(UUID.fromString(correlationId)).isNotNull();
+    }
+
+    @Test
+    void handlesCrlfInjectionAttemptSafely() throws Exception {
+        var result = mockMvc.perform(get("/actuator/health")
+                        .header("X-Correlation-ID", "injected\r\nHeader: value"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andReturn();
+
+        String correlationId = result.getResponse().getHeader("X-Correlation-ID");
+        assertThat(correlationId).isNotNull();
+        assertThat(correlationId).doesNotContain("\r", "\n", "Header", "value");
+        assertThat(UUID.fromString(correlationId)).isNotNull();
+    }
+
+    @Test
+    void healthProbesDoNotExposeSensitiveConfiguration() throws Exception {
+        var response = mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertThat(response)
+                .doesNotContain("password")
+                .doesNotContain("secret")
+                .doesNotContain("components")
+                .doesNotContain("db")
+                .doesNotContain("database");
     }
 
     @Test

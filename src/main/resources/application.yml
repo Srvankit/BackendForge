@@ -61,3 +61,7 @@ backendforge:
     register:
       max-requests: ${RATE_LIMIT_REGISTER_MAX_REQUESTS:30}
       window: ${RATE_LIMIT_REGISTER_WINDOW:60s}
+
+logging:
+  pattern:
+    correlation: "[%X{correlationId}] "

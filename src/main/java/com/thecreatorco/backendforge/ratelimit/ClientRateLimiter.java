@@ -7,11 +7,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ClientRateLimiter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientRateLimiter.class);
 
     private final RateLimitProperties properties;
     private final Clock clock;
@@ -37,6 +41,7 @@ public class ClientRateLimiter {
 
         if (window == null) {
             if (windows.size() >= properties.maxEntries()) {
+                LOGGER.warn("Rate limit table capacity reached ({} entries); rejecting client", properties.maxEntries());
                 throw new RateLimitExceededException(retryAfterSeconds(now));
             }
             windows.put(key, new Window(now, 1));
