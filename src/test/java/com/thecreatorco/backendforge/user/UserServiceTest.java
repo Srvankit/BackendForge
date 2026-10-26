@@ -1,8 +1,13 @@
 package com.thecreatorco.backendforge.user;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -21,10 +26,10 @@ class UserServiceTest {
         UserRepository userRepository = mock(UserRepository.class);
         PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
         JwtService jwtService = mock(JwtService.class);
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
         UserService userService = new UserService(userRepository, passwordEncoder, jwtService);
 
         when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
-        when(passwordEncoder.encode(PASSWORD)).thenReturn("encoded-password");
 
         ConstraintViolationException databaseViolation = new ConstraintViolationException(
                 "password hash must not be blank",
@@ -39,5 +44,22 @@ class UserServiceTest {
                 new UserRegistrationRequest(EMAIL, PASSWORD)))
                 .isSameAs(persistenceViolation)
                 .isNotInstanceOf(DuplicateEmailException.class);
+    }
+
+    @Test
+    void stillVerifiesPasswordWhenEmailIsUnknown() {
+        UserRepository userRepository = mock(UserRepository.class);
+        PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+        JwtService jwtService = mock(JwtService.class);
+        when(passwordEncoder.encode(anyString())).thenReturn("dummy-hash");
+        UserService userService = new UserService(userRepository, passwordEncoder, jwtService);
+
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
+        when(passwordEncoder.matches(eq(PASSWORD), anyString())).thenReturn(false);
+
+        assertThatThrownBy(() -> userService.login(new UserLoginRequest(EMAIL, PASSWORD)))
+                .isInstanceOf(InvalidCredentialsException.class);
+
+        verify(passwordEncoder).matches(eq(PASSWORD), anyString());
     }
 }

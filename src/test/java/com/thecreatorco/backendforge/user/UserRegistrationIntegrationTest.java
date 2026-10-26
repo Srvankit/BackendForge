@@ -2,6 +2,7 @@ package com.thecreatorco.backendforge.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -64,23 +66,25 @@ class UserRegistrationIntegrationTest {
 
     @Test
     void registersUserAndReturnsSafeResponse() throws Exception {
-        String response = mockMvc.perform(post("/api/v1/auth/register")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"email":"User@Example.COM","password":"%s"}
                                 """.formatted(PASSWORD)))
                 .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.email").value("user@example.com"))
                 .andExpect(jsonPath("$.enabled").value(true))
                 .andExpect(jsonPath("$.createdAt").exists())
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andExpect(jsonPath("$.passwordHash").doesNotExist())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andReturn();
 
+        String response = result.getResponse().getContentAsString();
         UUID id = UUID.fromString(objectMapper.readTree(response).get("id").asText());
+        assertThat(result.getResponse().getHeader("Location"))
+                .endsWith("/api/v1/auth/register/" + id);
         UserEntity persisted = userRepository.findById(id).orElseThrow();
         assertThat(persisted.getEmail()).isEqualTo("user@example.com");
         assertThat(persisted.getPasswordHash()).isNotEqualTo(PASSWORD);

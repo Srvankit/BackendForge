@@ -35,6 +35,11 @@ The default profile is intended for local development and provides safe local-de
 | `JWT_EXPIRATION_SECONDS` | `900` | Access-token lifetime in seconds |
 | `JWT_ISSUER` | `backendforge` | Required issuer claim for access tokens |
 | `JWT_AUDIENCE` | `backendforge-api` | Required audience claim for access tokens |
+| `RATE_LIMIT_LOGIN_MAX_REQUESTS` | `30` | Login requests allowed per client window |
+| `RATE_LIMIT_LOGIN_WINDOW` | `60s` | Login limiter window |
+| `RATE_LIMIT_REGISTER_MAX_REQUESTS` | `30` | Registration requests allowed per client window |
+| `RATE_LIMIT_REGISTER_WINDOW` | `60s` | Registration limiter window |
+| `RATE_LIMIT_MAX_ENTRIES` | `10000` | Maximum active client windows retained in memory |
 
 Copy `.env.example` to `.env` for Docker Compose. Compose reads `.env` for interpolation and explicitly passes the required application variables to the backend container; Spring Boot does not load `.env` files automatically. Compose derives the backend database URL, username, and password from `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`, so customized PostgreSQL credentials remain aligned. For host execution against the existing PostgreSQL container, use `jdbc:postgresql://localhost:5433/backendforge` instead.
 
@@ -63,7 +68,15 @@ Successful login returns an access token:
 }
 ```
 
+Failed login (unknown email, wrong password, or disabled account) returns the same HTTP 401 `INVALID_CREDENTIALS` body. Password verification still runs when no matching enabled account exists so response timing does not trivially disclose account existence. Exception handlers log only exception type names for unexpected failures; passwords, tokens, and request bodies are not written to application logs.
+
+Duplicate registration for an existing email still returns HTTP 409 `EMAIL_ALREADY_REGISTERED`. That conflict response is intentional for client UX and can reveal whether an email is registered; registration rate limiting reduces bulk probing. Changing that status would break the existing API contract.
+
 Send the token to protected endpoints using an `Authorization: Bearer <access-token>` header. Access tokens include and require the configured issuer, audience, and `token_use=access` claim. Tokens issued before these required claims were introduced will be rejected after deployment. Sessions are stateless; registration and login are public, while other endpoints require a valid token. Generate a local secret with `openssl rand -base64 32` and provide it through `JWT_SECRET`. Use a secret-management system rather than committing secrets in deployment environments.
+
+Login and registration have separate configurable in-memory request limits. Limits are keyed by the request's direct remote address; forwarded headers are not trusted. Requests over a limit receive HTTP 429 with the standard `ApiError` response and a `Retry-After` header. The limiter runs before controller validation and service/database/BCrypt work, and does not apply to health checks or unrelated authenticated routes. Invalid rate-limit settings (non-positive limits or zero/negative windows) fail application startup.
+
+The limiter is per application instance, is reset when the application restarts, and uses bounded expiring state. When the in-memory client-window map is full, additional distinct clients receive HTTP 429 rather than evicting active quotas. It is not shared across replicas, does not survive process restarts, and is not a substitute for a trusted edge/WAF or distributed rate limiter. It also does not fully stop credential stuffing or distributed attacks that rotate source addresses. Tune thresholds with load testing; multi-instance production deployments should enforce limits at a trusted gateway or shared store in addition to these per-instance defaults.
 
 ## Build and test
 

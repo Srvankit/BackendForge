@@ -89,6 +89,8 @@ class UserAuthenticationIntegrationTest {
                 .andExpect(jsonPath("$.accessToken").isString())
                 .andExpect(jsonPath("$.tokenType").value("Bearer"))
                 .andExpect(jsonPath("$.expiresIn").value(900))
+                .andExpect(jsonPath("$.password").doesNotExist())
+                .andExpect(jsonPath("$.passwordHash").doesNotExist())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -217,12 +219,30 @@ class UserAuthenticationIntegrationTest {
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/v1/protected-resource"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
+                .andExpect(jsonPath("$.message").value("Authentication is required"));
+
+        mockMvc.perform(get("/api/v1/protected-resource")
+                        .header("Authorization", "Bearer invalid-token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
+                .andExpect(jsonPath("$.message").value("Authentication is required"));
     }
 
     @Test
-    void exposesReadinessHealthWithoutAuthenticationAndWithoutDetails() throws Exception {
+    void exposesHealthProbesWithoutAuthenticationAndWithoutDetails() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").doesNotExist());
+
         mockMvc.perform(get("/actuator/health/readiness"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.components").doesNotExist());
+
+        mockMvc.perform(get("/actuator/health/liveness"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
                 .andExpect(jsonPath("$.components").doesNotExist());

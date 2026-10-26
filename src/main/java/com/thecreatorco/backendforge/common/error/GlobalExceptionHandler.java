@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.thecreatorco.backendforge.ratelimit.RateLimitExceededException;
 import com.thecreatorco.backendforge.user.DuplicateEmailException;
 import com.thecreatorco.backendforge.user.InvalidCredentialsException;
 
@@ -96,6 +97,18 @@ public class GlobalExceptionHandler {
                 "INVALID_CREDENTIALS",
                 exception.getMessage(),
                 Map.of());
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    ResponseEntity<ApiError> handleRateLimitExceeded(RateLimitExceededException exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", Long.toString(exception.getRetryAfterSeconds()))
+                .body(new ApiError(
+                        Instant.now(),
+                        HttpStatus.TOO_MANY_REQUESTS.value(),
+                        "RATE_LIMIT_EXCEEDED",
+                        "Too many requests",
+                        Map.of()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -20,9 +20,12 @@ public class UserService {
     public static final int MAX_PASSWORD_LENGTH = 128;
     public static final int MAX_PASSWORD_BYTES = 72;
 
+    private static final String TIMING_EQUALIZATION_PASSWORD = "backendforge-timing-equalization";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final String dummyPasswordHash;
 
     public UserService(
             UserRepository userRepository,
@@ -31,16 +34,17 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.dummyPasswordHash = passwordEncoder.encode(TIMING_EQUALIZATION_PASSWORD);
     }
 
     @Transactional(readOnly = true)
     public LoginResponse login(UserLoginRequest request) {
         String normalizedEmail = normalizeEmail(request.email());
-        UserEntity user = userRepository.findByEmail(normalizedEmail)
-                .filter(UserEntity::isEnabled)
-                .orElseThrow(InvalidCredentialsException::new);
+        UserEntity user = userRepository.findByEmail(normalizedEmail).orElse(null);
+        String passwordHash = user != null ? user.getPasswordHash() : dummyPasswordHash;
+        boolean passwordMatches = passwordEncoder.matches(request.password(), passwordHash);
 
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (user == null || !user.isEnabled() || !passwordMatches) {
             throw new InvalidCredentialsException();
         }
 
