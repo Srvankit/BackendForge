@@ -1,7 +1,7 @@
 # DRAFT PROPRIETARY COMMERCIAL SOFTWARE LICENSE AGREEMENT
 
 > **IMPORTANT NOTICE TO REPOSITORY OWNER AND LEGAL COUNSEL**
-> **STATUS: NOT FINALIZED â€” PRELIMINARY DRAFT FOR LEGAL AND BUSINESS REVIEW ONLY**
+> **STATUS: NOT FINALIZED — PRELIMINARY DRAFT FOR LEGAL AND BUSINESS REVIEW ONLY**
 > **NOT A FINAL OR EXECUTED AGREEMENT**
 > This document is a non-binding template intended solely for review and customization by the intellectual property owner and their legal counsel. It does not constitute legal advice, has not been finalized by a licensed attorney, and must not be treated as a legally enforceable End User License Agreement (EULA) until officially completed, reviewed under applicable jurisdiction laws, and formally adopted.
 > Placeholders marked with brackets (e.g., `[Licensor Name]`, `[Jurisdiction]`) indicate business and legal decisions that must be determined by the repository owner. See [`docs/COMMERCIAL-RELEASE-BLOCKERS.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/docs/COMMERCIAL-RELEASE-BLOCKERS.md) for the active list of unresolved commercial decisions.
@@ -34,7 +34,7 @@ The Licensor grants the Licensee a worldwide, non-exclusive, non-transferable (e
 
 ### Scope of Use (Proposed Terms Requiring Owner Determination)
 
-> *[PROPOSED TERM â€” REQUIRES OWNER DECISION PRIOR TO FINALIZATION]*
+> *[PROPOSED TERM — REQUIRES OWNER DECISION PRIOR TO FINALIZATION]*
 > **Option A (Unlimited Projects - Recommended for Starter Kits)**: The Licensee may use the Software to develop an unlimited number of Derived Applications for personal, commercial, or client projects.
 > **Option B (Single Project / Seat-based)**: The Licensee is authorized to use the Software for one (1) commercial Derived Application. Additional projects require the purchase of additional licenses.
 > **Term Duration**: `[PROPOSED TERM: Perpetual for the purchased version, subject to compliance with this Agreement.]`
@@ -65,7 +65,7 @@ The Licensee shall not, directly or indirectly:
 
 ## 5. Updates, Support, and Refunds (Proposed Terms Requiring Review)
 
-> *[PROPOSED CLAUSE â€” SUBJECT TO BUSINESS MODEL AND LEGAL COUNSEL REVIEW]*
+> *[PROPOSED CLAUSE — SUBJECT TO BUSINESS MODEL AND LEGAL COUNSEL REVIEW]*
 
 1. **Updates and Maintenance**: The Licensor may, at its sole discretion, release bug fixes, improvements, or new versions of the Software. Access to updates may be provided for a specified period (e.g., twelve (12) months from purchase) or governed by a separate support agreement. The Licensor is under no obligation to provide bespoke consulting, custom feature development, or ongoing technical support unless separately contracted.
 2. **Refund Policy**: Due to the digital and source-code nature of the Software, refund eligibility is subject to the terms of the authorized marketplace or payment provider (`[e.g., Gumroad / LemonSqueezy / Stripe]`) through which the Software was purchased, or the Licensor's published refund policy at the time of purchase.
@@ -82,7 +82,7 @@ The Licensee shall not, directly or indirectly:
 
 ## 7. Warranty Disclaimer and Limitation of Liability
 
-> *[PROPOSED CLAUSE â€” SUBJECT TO APPLICABLE CONSUMER LAW AND LEGAL COUNSEL REVIEW]*
+> *[PROPOSED CLAUSE — SUBJECT TO APPLICABLE CONSUMER LAW AND LEGAL COUNSEL REVIEW]*
 
 1. **"AS IS" Disclaimer**:
    TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS, WITH ALL FAULTS AND WITHOUT WARRANTY OF ANY KIND. THE LICENSOR EXPRESSLY DISCLAIMS ALL WARRANTIES, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING WITHOUT LIMITATION ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. THE LICENSOR DOES NOT WARRANT THAT THE SOFTWARE WILL MEET THE LICENSEE'S REQUIREMENTS, OPERATE WITHOUT INTERRUPTION, OR BE ERROR-FREE OR SECURE.
@@ -97,7 +97,7 @@ The Licensee shall not, directly or indirectly:
 
 ## 8. Governing Law and Jurisdiction
 
-> *[PROPOSED CLAUSE â€” TO BE COMPLETED BY REPOSITORY OWNER AND COUNSEL]*
+> *[PROPOSED CLAUSE — TO BE COMPLETED BY REPOSITORY OWNER AND COUNSEL]*
 
 This Agreement shall be governed by and construed in accordance with the laws of `[Jurisdiction, e.g., State/Country]`, without regard to its conflict of law principles. Any legal action, suit, or proceeding arising out of or relating to this Agreement shall be instituted exclusively in the competent courts located in `[City/Jurisdiction]`.
 

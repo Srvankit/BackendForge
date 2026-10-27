@@ -1,6 +1,6 @@
 # PRELIMINARY THIRD-PARTY NOTICES AND ATTRIBUTION
 
-> **STATUS: PRELIMINARY DOCUMENTATION FOR REVIEW â€” NOT A CERTIFIED LEGAL OPINION**
+> **STATUS: PRELIMINARY DOCUMENTATION FOR REVIEW — NOT A CERTIFIED LEGAL OPINION**
 > This document provides preliminary third-party licensing, copyright attribution, and dependency inventory for dependencies used by BackendForge.
 > It was compiled and reconciled against the actual automated Maven dependency resolution report (`target/generated-sources/license/THIRD-PARTY-PRODUCTION.txt`) generated via `org.codehaus.mojo:license-maven-plugin:2.5.0` on Java 21 and Spring Boot 3.5.6.
 > **Important Notice on Distribution Modes**:
