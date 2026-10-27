@@ -54,6 +54,14 @@ public class UserService {
                 jwtService.getExpirationSeconds());
     }
 
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUser(UserEntity user) {
+        if (user == null || !user.isEnabled()) {
+            throw new InvalidCredentialsException();
+        }
+        return UserResponse.from(user);
+    }
+
     @Transactional
     public UserResponse register(UserRegistrationRequest request) {
         String normalizedEmail = normalizeEmail(request.email());

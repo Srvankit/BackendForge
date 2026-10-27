@@ -17,7 +17,7 @@ RUN useradd --system --uid 10001 --create-home appuser
 
 WORKDIR /app
 
-COPY --from=build /workspace/target/backendforge-0.0.1-SNAPSHOT.jar /app/backendforge.jar
+COPY --from=build /workspace/target/backendforge-*.jar /app/backendforge.jar
 
 RUN chown appuser:appuser /app/backendforge.jar
 

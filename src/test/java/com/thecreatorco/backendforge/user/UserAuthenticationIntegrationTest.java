@@ -232,6 +232,37 @@ class UserAuthenticationIntegrationTest {
     }
 
     @Test
+    void returnsCurrentAuthenticatedUserProfileWithValidToken() throws Exception {
+        register();
+        String token = loginToken();
+
+        mockMvc.perform(get("/api/v1/users/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isString())
+                .andExpect(jsonPath("$.email").value(EMAIL))
+                .andExpect(jsonPath("$.enabled").value(true))
+                .andExpect(jsonPath("$.createdAt").exists())
+                .andExpect(jsonPath("$.password").doesNotExist())
+                .andExpect(jsonPath("$.passwordHash").doesNotExist())
+                .andExpect(jsonPath("$.updatedAt").doesNotExist());
+    }
+
+    @Test
+    void rejectsUnauthenticatedAndInvalidTokenRequestsToUsersMe() throws Exception {
+        mockMvc.perform(get("/api/v1/users/me"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
+                .andExpect(jsonPath("$.message").value("Authentication is required"));
+
+        mockMvc.perform(get("/api/v1/users/me")
+                        .header("Authorization", "Bearer invalid-jwt-token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.code").value("UNAUTHORIZED"))
+                .andExpect(jsonPath("$.message").value("Authentication is required"));
+    }
+
+    @Test
     void exposesHealthProbesWithoutAuthenticationAndWithoutDetails() throws Exception {
         mockMvc.perform(get("/actuator/health"))
                 .andExpect(status().isOk())

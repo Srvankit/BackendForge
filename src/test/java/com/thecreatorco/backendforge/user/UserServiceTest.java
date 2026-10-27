@@ -62,4 +62,40 @@ class UserServiceTest {
 
         verify(passwordEncoder).matches(eq(PASSWORD), anyString());
     }
+
+    @Test
+    void getCurrentUserReturnsSafeResponseForEnabledUser() {
+        UserRepository userRepository = mock(UserRepository.class);
+        PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+        JwtService jwtService = mock(JwtService.class);
+        UserService userService = new UserService(userRepository, passwordEncoder, jwtService);
+
+        java.time.Instant now = java.time.Instant.now();
+        java.util.UUID userId = java.util.UUID.randomUUID();
+        UserEntity user = new UserEntity(userId, EMAIL, "hashed-password", true, now, now);
+
+        UserResponse response = userService.getCurrentUser(user);
+
+        org.assertj.core.api.Assertions.assertThat(response.id()).isEqualTo(userId);
+        org.assertj.core.api.Assertions.assertThat(response.email()).isEqualTo(EMAIL);
+        org.assertj.core.api.Assertions.assertThat(response.enabled()).isTrue();
+        org.assertj.core.api.Assertions.assertThat(response.createdAt()).isEqualTo(now);
+    }
+
+    @Test
+    void getCurrentUserRejectsNullOrDisabledUser() {
+        UserRepository userRepository = mock(UserRepository.class);
+        PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+        JwtService jwtService = mock(JwtService.class);
+        UserService userService = new UserService(userRepository, passwordEncoder, jwtService);
+
+        assertThatThrownBy(() -> userService.getCurrentUser(null))
+                .isInstanceOf(InvalidCredentialsException.class);
+
+        java.time.Instant now = java.time.Instant.now();
+        UserEntity disabledUser = new UserEntity(
+                java.util.UUID.randomUUID(), EMAIL, "hashed-password", false, now, now);
+        assertThatThrownBy(() -> userService.getCurrentUser(disabledUser))
+                .isInstanceOf(InvalidCredentialsException.class);
+    }
 }

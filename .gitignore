@@ -18,6 +18,8 @@ Thumbs.db
 
 # Logs
 *.log
+hs_err_pid*
+replay_pid*
 
 # Local Spring Boot state
 spring.log

@@ -1,0 +1,11 @@
+# Git attributes for BackendForge
+# Enforce standard line endings across platforms
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Exclude maintainer-only directories, CI workflows, and tooling from customer git-archive ZIP
+.github/ export-ignore
+docs/ export-ignore
+scripts/ export-ignore
+.gitattributes export-ignore

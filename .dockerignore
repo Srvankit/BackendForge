@@ -10,6 +10,8 @@ target/
 *.code-workspace
 
 *.log
+hs_err_pid*
+replay_pid*
 spring.log
 
 .DS_Store
