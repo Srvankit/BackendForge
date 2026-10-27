@@ -21,15 +21,16 @@ BackendForge is designed to be distributed commercially as a **developer source-
 
 A critical requirement of controlled release engineering is strict separation between historical Git references and ongoing uncommitted development work:
 
-| Aspect | Baseline `v1.0.0` (`f7670ae`) | Current Local State | Candidate `v1.0.1` (Future) |
+| Aspect | Baseline `v1.0.0` (`f7670ae`) | Current Candidate on `main` | Future Release `v1.0.1` |
 | :--- | :--- | :--- | :--- |
-| **Git Status** | Committed and tagged at baseline commit `f7670ae8824a5a277ec9c126c87ede53a3050ea5` | Working tree with uncommitted changes (Phases A, B, C3, C4, C5) | **NOT YET COMMITTED OR TAGGED** |
-| **`pom.xml` Version** | `0.0.1-SNAPSHOT` | `1.0.1` (uncommitted) | Aligned `1.0.1` |
-| **`LICENSE.md`** | **Missing** from Git tree | Preliminary draft present (uncommitted) | Finalized commercial license committed |
-| **`THIRD-PARTY-NOTICES.md`** | **Missing** from Git tree | Preliminary draft present (uncommitted) | Audited third-party notices committed |
-| **Maven Wrapper** | **Missing** from Git tree (`mvnw`, `mvnw.cmd`, `.mvn/` untracked) | Present locally (uncommitted) | Fully tracked and committed |
-| **OpenAPI & Enhancements** | Missing OpenAPI configuration and hardening | Present locally (uncommitted) | Fully tested and committed |
-| **Suitability for Sale** | **UNSUITABLE**: Missing legal notices, wrapper, and correct POM version | **UNSUITABLE**: Uncommitted and unreviewed dirty working tree | **TARGET STATE**: Packaged only after review, staging, and tagging |
+| **Git Status** | Committed and tagged at baseline commit `f7670ae8824a5a277ec9c126c87ede53a3050ea5` | Committed on `main` branch; all 98 tests passing | Formally tagged with signed Git tag `v1.0.1` only after owner/legal signoff |
+| **`pom.xml` Version** | `0.0.1-SNAPSHOT` | `1.0.1` (aligned) | `1.0.1` (release) |
+| **`LICENSE.md`** | **Missing** from baseline Git tree | Preliminary commercial draft on `main` | Finalized commercial license approved by counsel |
+| **`THIRD-PARTY-NOTICES.md`** | **Missing** from baseline Git tree | Preliminary attribution report on `main` | Audited third-party notices committed |
+| **Maven Wrapper** | **Missing** from baseline tree (`mvnw` untracked) | Fully tracked and committed on `main` | Fully tracked and committed |
+| **Commercial Docs** | Missing launch preparation and blockers | Complete blockers, Gumroad draft, and launch checklist | Fully resolved commercial blockers |
+| **Suitability for Sale** | **UNSUITABLE**: Missing legal notices, wrapper, POM version | **UNSUITABLE**: Awaiting Gumroad setup & legal review of license | **TARGET STATE**: Packaged and uploaded to Gumroad after legal signoff |
+
 
 > [!CAUTION]
 > **Never Package v1.0.0 as Though it Contained Uncommitted Work**: The baseline tag `v1.0.0` points to commit `f7670ae`, which lacks legal documents, the Maven wrapper, and recent fixes. Packaging `v1.0.0` via `git archive` will accurately reflect only what was committed at that tag. Uncommitted working changes must never be mixed into a release archive without a reviewed, formal commit.

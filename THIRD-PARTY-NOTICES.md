@@ -450,15 +450,16 @@ The following complete inventory lists every individual JAR dependency resolved 
 
 ## 5. Important License Obligations for Downstream Distributors
 
-### 5.1 Source Code Starter Kit (Current Default)
-* When distributing or selling BackendForge as source code only, you distribute original files, scaffolding, and configuration.
-* Third-party library binaries are fetched directly from Maven Central by the customer during build execution.
-* The distributor must retain this `THIRD-PARTY-NOTICES.md` document and any inline upstream copyright statements in the source tree.
+### 5.1 Source Code Starter Kit (Gumroad Commercial Distribution Model)
+* When distributing or selling BackendForge as a downloadable source-code starter kit archive (`BackendForge-v1.0.1.zip`), only original source files, architectural scaffolding, database schema migrations, and documentation authored for the project are distributed.
+* **Third-Party Binaries Are Not Bundled**: Third-party open-source library binaries are **not bundled** inside the distributed release ZIP. Instead, runtime binaries are fetched directly from the upstream Maven Central repository by the customer during local build execution (`./mvnw clean package` or `.\mvnw.cmd clean package`).
+* **Proprietary vs. Open-Source Distinction**: The commercial listing, product description, and customer documentation must **never** claim or imply that third-party open-source dependencies are proprietary works of The Creator Co. or the Licensor. Third-party components remain subject to their respective open-source licenses as cataloged herein.
+* **Mandatory File Retention**: The distributor must retain this `THIRD-PARTY-NOTICES.md` document and any inline upstream copyright notices in the distributed source archive.
 
 ### 5.2 Precompiled Fat JAR / Container Distribution (If Adopted in Future)
-If BackendForge is ever distributed in compiled binary form (e.g., an executable JAR or pre-built Docker image), downstream distributors must comply with specific binary redistribution mandates:
+If BackendForge or any customer-derived project is distributed in compiled binary form (e.g., an executable fat JAR or pre-built Docker container image), the distributor must comply with specific binary redistribution mandates:
 1. **Apache License 2.0**:
-   - Must provide a copy of the Apache-2.0 license.
+   - Must provide a copy of the Apache-2.0 license text.
    - Must retain and reproduce all upstream `NOTICE` files (as reproduced in Section 3).
 2. **BSD-2-Clause, BSD-3-Clause, and MIT**:
    - Must reproduce the exact copyright notice, conditions, and disclaimers in documentation accompanying the binary distribution.
@@ -466,11 +467,17 @@ If BackendForge is ever distributed in compiled binary form (e.g., an executable
    - Section 6 of LGPL-2.1 requires distributors of compiled applications utilizing LGPL libraries to:
      - Provide the complete corresponding machine-readable source code of the LGPL library (or a written offer valid for at least three years).
      - Permit reverse engineering for debugging modifications.
-     - Provide a mechanism allowing the customer to run the application with a modified version of the library (standard executable JARs where Hibernate classes are bundled in `BOOT-INF/lib` typically satisfy this when modular or replaceable).
-4. **Logback, AspectJ, and Jakarta APIs (EPL-1.0 / EPL-2.0 / EDL-1.0)**:
+     - Provide a mechanism allowing the customer to run the application with a modified version of the library (standard Spring Boot executable JARs where Hibernate classes reside in `BOOT-INF/lib` typically satisfy this when modular or replaceable).
+4. **Logback, AspectJ, and Jakarta EE APIs (EPL-1.0 / EPL-2.0 / EDL-1.0)**:
    - Under EPL, distributors of executable binaries must state that the source code of the EPL component is available and explain how to obtain it.
    - Under EDL-1.0 (BSD equivalent), reproduction of the license notice is required.
    - Under GPL-2.0 with Classpath Exception (CPE), independent modules linked to the library are exempt from GPL copyleft requirements.
+
+### 5.3 Unresolved Distribution Obligations for Legal Review
+Prior to commercial distribution on Gumroad or any other platform, the intellectual property owner must submit this document to qualified legal counsel to address the following unresolved matters:
+1. **Notice Completeness vs. Legal Compliance**: Reconciling the dependency inventory against Maven build output confirms automated inventory accuracy, but **does not constitute legal clearance or certification**.
+2. **Scaffolding and Linking Review**: Counsel must confirm that source code scaffolding designed to import and link against LGPL-2.1 (Hibernate) and EPL-2.0 (AspectJ/Jakarta) components under standard Java compile semantics does not inadvertently create copyleft exposure for the proprietary starter-kit code.
+3. **Customer Attribution Guidance**: Counsel must confirm that the instructions provided to downstream purchasers adequately inform them of their legal notice obligations when compiling and distributing their own client applications or SaaS deployments.
 
 ---
 
@@ -479,4 +486,5 @@ If BackendForge is ever distributed in compiled binary form (e.g., an executable
 > **IMPORTANT LEGAL NOTICE**:
 > This document was generated and reconciled through automated build analysis, Maven POM inspection, and local JAR metadata extraction. It is intended solely as an engineering aid for the intellectual property owner and their legal advisors.
 > **This document does NOT constitute certified legal compliance, a formal copyright guarantee, or legal advice.**
-> Before offering BackendForge or any derivative product for commercial sale or public distribution, this document, the accompanying [LICENSE.md](file:///C:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md), and distribution packaging procedures must be formally reviewed and approved by qualified legal counsel in the governing jurisdiction.
+> Neither the completeness of this dependency inventory nor the presence of automated notice files satisfies legal distribution obligations on its own.
+> Before offering BackendForge or any derivative product for commercial sale on Gumroad or any other platform, this document, the accompanying [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md), and distribution packaging procedures must be formally reviewed and approved by qualified legal counsel in the governing jurisdiction.

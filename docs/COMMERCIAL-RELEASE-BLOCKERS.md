@@ -1,78 +1,122 @@
 # BackendForge Commercial Release Blockers
 
-> **Document Status**: Release Engineering Audit — Commercial Decision Tracker
-> **Classification**: Commercial & Legal Pre-Launch Blockers
+> **Document Status**: Commercial Decision Tracker & Launch Readiness Audit
+> **Classification**: Commercial, Legal, and Operational Pre-Launch Blockers
 > **Application Version**: Candidate 1.0.1
+> **Product Brand**: The Creator Co. (public-facing brand; unconfirmed legal entity registration)
+> **Intended Sales Platform**: Gumroad (Seller Country: India)
+> **License Draft Status**: NOT FINALIZED — PRELIMINARY DRAFT FOR LEGAL AND BUSINESS REVIEW ONLY
 
 ---
 
 ## Executive Summary
 
-While BackendForge is **technically verified** (clean builds, 100% passing test suite across all 98 unit and Testcontainers integration tests, hardened security configurations, verified packaging workflows, and clean artifact generation), the project **CANNOT be commercially distributed or sold** until the repository owner and legal counsel resolve the specific business and legal blockers documented below.
+BackendForge is **technically verified** (clean builds, 100% passing test suite across all 98 unit and Testcontainers integration tests, hardened security configurations, verified packaging workflows, and clean artifact generation).
 
-Per the master release requirements, technical maintainers are strictly prohibited from inventing legal identities, pricing models, refund rules, jurisdictions, or binding contract terms.
+The repository owner has confirmed key foundational business decisions:
+1. **Product Brand**: The public-facing product brand is **The Creator Co.** (Note: This is an informal commercial brand name; it is not currently claimed or verified as a registered legal entity).
+2. **Seller Identity & Country**: The seller operates from **India** using their genuine legal identity. (Genuine legal name, address, and tax identifiers are intentionally omitted from Git to protect sensitive personal records and must be configured directly within the merchant platform).
+3. **Licensing Model**: **Unlimited-project licensing**. Purchasers may use BackendForge to build unlimited personal, commercial, SaaS, and bespoke client projects, but are strictly prohibited from redistributing, reselling, or open-sourcing the starter kit itself as a competing standalone product.
+4. **Update Entitlement**: Purchasers receive **perpetual permission to use the specific version purchased** (Candidate Version 1.0.1). Future product updates, feature upgrades, and subsequent versions are **sold separately**. There is no entitlement to free lifetime updates or ongoing maintenance.
+5. **Sales Platform**: **Gumroad** is the selected sales platform. (Note: Gumroad account verification, payout integration, and payment enablement have not yet been completed by the owner).
+6. **Distribution Format**: **Source-code starter kit only** (`BackendForge-v1.0.1.zip`). Decoupled third-party dependencies are fetched by the customer directly from Maven Central.
 
-The commercial software license agreement ([`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md)) remains in **NOT FINALIZED (PRELIMINARY DRAFT)** status until each of the following decisions has been determined and reviewed by licensed counsel.
+### Critical Legal Notice
+While the repository owner has confirmed their business preferences, **a business decision is not legally enforceable merely because it has been selected**. The commercial software license agreement ([`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md)) remains in **`STATUS: NOT FINALIZED — PRELIMINARY DRAFT FOR LEGAL AND BUSINESS REVIEW ONLY`** until formal review and approval by qualified legal counsel under applicable law, and until account verification on Gumroad is complete. BackendForge **CANNOT be commercially sold** until the open items below are resolved.
 
 ---
 
 ## Summary of Commercial Blockers
 
-| Blocker ID | Domain | Decision Required | Why It Matters | Required Input from Owner / Counsel |
+| Blocker ID | Domain | Decision & Status | Resolution Details | Remaining Open Action |
 | :--- | :--- | :--- | :--- | :--- |
-| **BLK-01** | Legal Identity | Seller Legal Name & Contact Details | Establishes licensor identity, party to the contract, and who holds copyright enforcement authority. | Official legal entity name (or individual name), registration details, and official contact/support address. |
-| **BLK-02** | Licensing Model | Single-Project vs. Unlimited-Project Scope | Defines customer rights: how many commercial derived applications can be created per purchased license. | Business decision choosing Option A (unlimited derived projects) or Option B (single-project seat). |
-| **BLK-03** | Entitlements | License Duration & Update Access Policy | Specifies whether customers receive updates indefinitely or for a defined duration (e.g., 12 months). | Business policy on update duration, maintenance tiers, and version access rules. |
-| **BLK-04** | Commercial Terms | Payment Platform & Refund Policy | Mandates consumer disclosure and alignment with digital distributor terms (e.g., Gumroad, LemonSqueezy, Stripe). | Selected marketplace/processor terms and digital source-code refund policy. |
-| **BLK-05** | Legal Jurisdiction | Governing Law and Dispute Venue | Dictates which jurisdiction's statutes govern contract disputes and where proceedings occur. | Governing country, state/province, and court venue. |
-| **BLK-06** | Risk & Liability | Warranty Disclaimer & Liability Cap | Protects seller against damages while ensuring enforceability under applicable commercial laws. | Review and approval of monetary liability ceiling and disclaimer language by legal counsel. |
-| **BLK-07** | Distribution Form | Source Starter Kit vs. Binary Distribution | Distribution format dictates open-source compliance requirements (e.g., LGPL-2.1 relinking for binaries). | Confirmation that initial commercial release is strictly source-code starter kit, deferring precompiled binary distribution. |
+| **BLK-01** | Legal Identity | **OPEN (PARTIALLY RESOLVED)** | Brand confirmed as **The Creator Co.**; seller operating from **India**. Genuine legal details withheld from repository. | Owner must complete legal identity and address verification in Gumroad dashboard. |
+| **BLK-02** | Licensing Model | **RESOLVED IN POLICY** *(Legal review pending)* | **Unlimited-project model** confirmed. Unlimited personal & client projects allowed; reselling the starter kit prohibited. | Legal counsel must review the revised grant and restriction language in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md). |
+| **BLK-03** | Entitlements | **RESOLVED IN POLICY** *(Legal review pending)* | **Perpetual use of purchased version** (`1.0.1`). Future updates sold separately. No free lifetime updates. | Legal counsel must review the version-entitlement clause in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md). |
+| **BLK-04** | Sales Platform & Refunds | **PARTIALLY RESOLVED** | Intended platform confirmed as **Gumroad** (India). Payout account and refund wording remain open. | Owner must connect payout account on Gumroad and establish the final digital goods refund policy. |
+| **BLK-05** | Legal Jurisdiction | **OPEN** | Seller country confirmed as India. Specific governing state law and dispute court venue not selected. | Legal counsel must determine appropriate Indian governing law and dispute court venue clauses. |
+| **BLK-06** | Risk & Liability | **OPEN** | AS IS disclaimer drafted; liability monetary cap and consequential damage disclaimers remain bracketed. | Legal counsel must review and approve monetary liability ceiling and disclaimer enforceability. |
+| **BLK-07** | Distribution Form | **RESOLVED** | Confirmed: Source-code starter kit only (`BackendForge-v1.0.1.zip`). Third-party binaries fetched via Maven. | None. Packaging scripts and verification standards enforce source-only packaging. |
+| **BLK-08** | Tax & Invoicing | **OPEN** | Seller based in India. GST registration, Letter of Undertaking (LUT) for service exports, and invoicing rules pending. | Owner must consult a qualified Indian tax professional (CA) regarding GST, LUT filing, and Gumroad invoicing. |
 
 ---
 
 ## Detailed Blocker Specifications
 
-### BLK-01: Seller Legal Entity and Contact Details
-- **Current State**: Placeholders in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 1 (`[Legal Entity / Individual Name]`, `[Contact Email / Website]`).
-- **Why It Matters**: A software license without an identifiable licensor cannot legally transfer rights, enforce restrictions, or protect the author.
-- **Required Resolution**: Provide the registered company name (or sole proprietor legal name), official business mailing address, and customer support contact email/URL.
+### BLK-01: Seller Legal Entity and Account Verification
+- **Status**: OPEN (Partially Resolved in Business Policy)
+- **Confirmed Decisions**: Brand name is **The Creator Co.** (public-facing, unconfirmed registration). Seller operates from **India** under their genuine legal identity.
+- **Why It Matters**: A software license without an identifiable licensor cannot legally transfer rights, enforce restrictions, or protect intellectual property. Furthermore, Gumroad requires real legal identity verification before enabling payouts.
+- **Security Rule**: Personal legal names, residential addresses, bank account numbers, IFSC codes, PAN, and GSTIN numbers must **NEVER** be committed to this Git repository.
+- **Required Resolution**: The owner must supply real legal identity, residential/business address, and government tax identifiers directly inside the Gumroad merchant verification dashboard. In [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md), explicit placeholders (`[Licensor Legal Entity / Individual Name]`, `[Contact Email / Website]`) are retained until formally executed.
 
 ### BLK-02: Scope of License Grant (Project Allowance)
-- **Current State**: Option A (Unlimited Projects) and Option B (Single Project) are outlined as proposed alternatives in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 2.
-- **Why It Matters**: Developer starter kits typically allow unlimited personal and client projects (Option A), whereas enterprise frameworks often charge per deployed application or per seat (Option B). This core pricing/licensing decision determines customer expectations and enforcement mechanisms.
-- **Required Resolution**: Choose either Option A (unlimited derived applications) or Option B (single derived application per license key/purchase).
+- **Status**: RESOLVED IN BUSINESS POLICY (Formal Legal Review Pending)
+- **Confirmed Decision**: **Unlimited-Project Model**. Purchasers are granted the right to use BackendForge for an unlimited number of personal, commercial, SaaS, and bespoke client projects.
+- **Clear Restrictions**: Purchasers are strictly prohibited from reselling, sublicensing, redistributing, or publicly hosting the original starter kit or its core scaffolding as a competing standalone template, boilerplate, or code generator.
+- **Required Resolution**: The draft license ([`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 2) has been updated to reflect the unlimited-project grant. Legal counsel must review the phrasing to confirm that client project handover rights and starter kit resale prohibitions are mutually clear and enforceable.
 
 ### BLK-03: Update Entitlement and Version Support
-- **Current State**: Section 5 contains proposed language regarding a 12-month update entitlement without binding terms.
-- **Why It Matters**: Customers need to know if purchasing `v1.0.1` entitles them to future feature updates (`v1.1.0`, `v2.0.0`), critical security hotfixes only, or no updates beyond the downloaded archive.
-- **Required Resolution**: Define the exact update window (e.g., lifetime access to `1.x` releases, or 12 months of access via the purchase platform).
+- **Status**: RESOLVED IN BUSINESS POLICY (Formal Legal Review Pending)
+- **Confirmed Decision**: **Perpetual Version License; Future Updates Sold Separately**.
+  - The purchaser receives perpetual permission to use Candidate Version 1.0.1.
+  - Future feature updates, major version releases, or architectural overhauls are **sold separately**.
+  - No free lifetime updates, ongoing maintenance, or bespoke technical support are promised or implied.
+- **Required Resolution**: The draft license ([`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 5) has been updated to explicitly distinguish perpetual use of the purchased release from separate commercial entitlement to future releases. Legal counsel must confirm the wording.
 
 ### BLK-04: Digital Marketplace and Refund Terms
-- **Current State**: Placeholder references to payment platforms (`[e.g., Gumroad / LemonSqueezy / Stripe]`) in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 5.
-- **Why It Matters**: Once source code is downloaded, digital items cannot be "returned." Many merchants enforce a strict "no refund" policy on downloadable source code unless required by local statutory consumer protection laws (e.g., EU 14-day cooling-off exemptions for digital goods with immediate access).
-- **Required Resolution**: Select the commercial checkout platform and specify the exact refund policy terms to be displayed at point of sale.
+- **Status**: PARTIALLY RESOLVED (Platform Confirmed; Policy & Verification Pending)
+- **Confirmed Decision**: **Gumroad** is the designated sales platform; seller country is **India**.
+- **Open Items**:
+  - Gumroad account creation and identity verification are not yet complete.
+  - Indian payout account (Stripe Express / bank payout) is not yet connected.
+  - Payment processing has not yet been enabled.
+  - Digital goods refund policy wording remains open.
+- **Why It Matters**: Because software source code is downloadable and irrevocable, software vendors typically apply a "no refund once downloaded" policy, subject to statutory consumer protection laws. Gumroad platform guidelines and merchant terms must be adhered to.
+- **Required Resolution**: The owner must configure the Gumroad account, connect the payout account, and decide on the explicit refund policy (e.g., all sales final on downloadable source code, except where prohibited by mandatory local consumer protection law).
 
 ### BLK-05: Governing Law and Forum Selection
-- **Current State**: Placeholder in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 8 (`[Jurisdiction, e.g., State/Country]`, `[City/Jurisdiction]`).
-- **Why It Matters**: Without an explicit choice of law and exclusive jurisdiction clause, disputes could be litigated in the buyer's local jurisdiction under uncertain conflict-of-law rules.
-- **Required Resolution**: Designate the specific governing jurisdiction (e.g., Delaware, England & Wales, India, etc.) and court venue.
+- **Status**: OPEN (Awaiting Legal Counsel Review)
+- **Current State**: Placeholders in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 8 (`[Governing Law: Laws of India / State of [State], India]`, `[Exclusive Venue: Courts of [City/State], India]`).
+- **Why It Matters**: Because the seller operates from India, disputes should ideally be governed by Indian commercial law and adjudicated in an Indian court with appropriate jurisdiction. Without an explicit choice of law and venue clause, litigation could occur in unpredictable international jurisdictions.
+- **Required Resolution**: Licensed legal counsel must designate the appropriate Indian state jurisdiction and court venue.
 
 ### BLK-06: Limitation of Liability and Damages Cap
-- **Current State**: Placeholder monetary cap (`[e.g., TWELVE (12) MONTHS]`, `[SPECIFIED FLAT SUM, e.g., $100 USD]`) in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 7.
-- **Why It Matters**: Uncapped liability exposes the software seller to consequential damage claims if a security vulnerability or defect impacts a customer's production system.
-- **Required Resolution**: Legal counsel must review the cap clause to ensure it provides maximum protection enforceable under applicable law.
+- **Status**: OPEN (Awaiting Legal Counsel Review)
+- **Current State**: Placeholders in [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) Section 7 (`[MONETARY CAP, e.g., total amount paid by Licensee for the Software, or $100 USD]`).
+- **Why It Matters**: Without an enforceable liability cap, software authors risk unbounded liability if downstream client systems suffer data breaches or outages.
+- **Required Resolution**: Legal counsel must review the "AS IS" warranty disclaimer and aggregate liability cap to ensure maximum enforceability under Indian law (e.g., Indian Contract Act, 1872) and cross-border commercial norms.
 
 ### BLK-07: Confirmation of Distribution Format (Source Kit Only)
-- **Current State**: Documented in [`THIRD-PARTY-NOTICES.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/THIRD-PARTY-NOTICES.md) and [`docs/PACKAGING-AND-VERIFICATION.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/docs/PACKAGING-AND-VERIFICATION.md).
-- **Why It Matters**: Distributing source code means third-party open-source dependencies (such as LGPL-2.1 Hibernate ORM) are fetched directly from Maven Central by the customer, avoiding complex binary redistribution requirements. If precompiled executable JARs or Docker images are distributed commercially in the future, additional license compliance measures are legally mandatory.
-- **Required Resolution**: Formally confirm that the first commercial release is restricted to the source-code archive (`BackendForge-v1.0.1.zip`).
+- **Status**: RESOLVED (Verified & Enforced)
+- **Confirmed Decision**: BackendForge is distributed strictly as a **source-code starter kit ZIP** (`BackendForge-v1.0.1.zip`).
+- **Open-Source Compliance Rationale**: Distributing source code means all third-party dependencies (including LGPL-2.1 Hibernate ORM and EPL Logback) are downloaded directly from Maven Central by the customer during local build execution. This avoids complex binary redistribution obligations (such as LGPL object relinking mandates).
+- **Enforcement**: Automated packaging scripts ([`scripts/package-source.ps1`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/scripts/package-source.ps1) and [`scripts/package-source.sh`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/scripts/package-source.sh)) and verification scripts enforce clean source packaging from explicit Git references.
+
+### BLK-08: Tax, GST, LUT, and Cross-Border Invoicing
+- **Status**: OPEN (Requires Professional Tax Review)
+- **Context**: The seller is located in India and selling digital products globally via Gumroad.
+- **Why It Matters**:
+  - Export of software services from India qualifies for zero-rated GST if a Letter of Undertaking (LUT) is filed on the GST portal before export, or IGST is paid and refunded.
+  - Domestic Indian sales may attract 18% GST if the seller crosses the statutory threshold (or registers voluntarily).
+  - Gumroad acts as Merchant of Record (MoR) for certain jurisdictions, collecting sales tax/VAT internationally, but the Indian seller must understand their domestic tax reporting obligations.
+- **Required Resolution**: The owner must consult a qualified Indian Chartered Accountant (CA) or tax professional prior to enabling commercial sales.
 
 ---
 
 ## Action Plan for Commercial Launch
 
-1. **Owner Resolution**: Repository owner supplies business inputs for BLK-01 through BLK-05.
-2. **Legal Review**: Retain qualified legal counsel to customize [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) and sign off on warranty/liability terms (BLK-06).
-3. **Draft Removal**: Remove DRAFT watermarks from [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) and update the status from `NOT FINALIZED` to `ACTIVE COMMERCIAL LICENSE`.
-4. **Checkout Integration**: Publish the approved terms on the designated payment platform.
-5. **Release Packaging**: Execute the verified packaging script to produce the customer-facing distribution archive.
+1. **Owner Execution**:
+   - Create and verify the Gumroad seller account using genuine Indian legal identity and address.
+   - Connect an eligible Indian bank/payout account on Gumroad.
+   - Consult an Indian tax advisor regarding GST registration and filing Form GST RFD-11 (LUT) for zero-rated exports.
+2. **Legal Review**:
+   - Engage qualified legal counsel to review [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) (governing law, dispute venue, liability cap, refund terms).
+   - Sign off on final commercial terms.
+3. **License Finalization**:
+   - Update [`LICENSE.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/LICENSE.md) from `STATUS: NOT FINALIZED` to active commercial license upon legal approval.
+4. **Product Listing & Packaging**:
+   - Finalize the listing copy using [`docs/GUMROAD-PRODUCT-LISTING-DRAFT.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/docs/GUMROAD-PRODUCT-LISTING-DRAFT.md).
+   - Follow the launch steps in [`docs/GUMROAD-LAUNCH-CHECKLIST.md`](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/docs/GUMROAD-LAUNCH-CHECKLIST.md).
+   - Package and verify `BackendForge-v1.0.1.zip` using the repository verification scripts.
+   - Upload the verified ZIP to Gumroad and perform a test purchase.
