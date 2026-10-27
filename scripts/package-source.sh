@@ -317,7 +317,7 @@ fi
 echo ""
 echo "Creating release archive via 'git archive'..."
 mkdir -p "$OUTPUT_DIR"
-git archive --format=zip --prefix="$PREFIX" "$COMMIT_SHA" -- "${CUSTOMER_ALLOWED_ROOTS[@]}" -o "$ARCHIVE_PATH"
+git archive --format=zip --prefix="$PREFIX" -o "$ARCHIVE_PATH" "$COMMIT_SHA" -- "${CUSTOMER_ALLOWED_ROOTS[@]}"
 
 if [[ ! -f "$ARCHIVE_PATH" ]]; then
     echo "ERROR: Failed to create archive '$ARCHIVE_PATH'." >&2

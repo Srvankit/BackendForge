@@ -328,7 +328,7 @@ if (-not (Test-Path $OutputDir)) {
 }
 
 # Use customer allowed roots to prevent maintainer-only files from being packaged
-& git archive --format=zip --prefix="$Prefix" "$commitSha" -- $customerAllowedRoots -o "$archivePath"
+& git archive --format=zip --prefix="$Prefix" -o "$archivePath" "$commitSha" -- $customerAllowedRoots
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path $archivePath)) {
     Write-Error "Failed to create archive '$archivePath'."
     exit 1
