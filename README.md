@@ -443,6 +443,24 @@ Swagger UI is available at `http://localhost:8080/swagger-ui.html`. To test prot
 5. In the `bearerAuth` dialog, enter your token (or `Bearer <your-token>`) and click **Authorize**, then click **Close**.
 6. The padlock icon will show as locked. You can now execute `GET /api/v1/users/me` directly within the browser interface.
 
+#### Production Swagger & OpenAPI Access Guidance
+
+In the default security configuration ([SecurityConfig.java](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/security/SecurityConfig.java)), Swagger UI (`/swagger-ui.html`, `/swagger-ui/**`) and OpenAPI endpoints (`/v3/api-docs/**`, `/v3/api-docs.yaml`) are publicly accessible (`.permitAll()`) to facilitate local development and API exploration.
+
+When deploying to production, operators should assess whether exposing interactive API documentation to the public internet aligns with their organizational security requirements:
+
+* **Disabling Documentation in Production**:
+  Operators can disable Swagger UI and OpenAPI generation entirely via Springdoc configuration properties (for example, in `application-prod.yml`):
+  ```yaml
+  springdoc:
+    api-docs:
+      enabled: false
+    swagger-ui:
+      enabled: false
+  ```
+* **Restricting Access Behind Authentication**:
+  Operators who need documentation available in production should apply an intentional access-control policy, such as restricting access at the network/ingress level (e.g., private subnet, VPN, or reverse-proxy firewall) or updating `SecurityConfig.java` to require authentication and specific administrative roles for Swagger and OpenAPI endpoints.
+
 ---
 
 ### 5. Standard Error Contract (`ApiError`)
@@ -528,15 +546,17 @@ To enable CORS safely in your derived application:
 
 ### Current Rate-Limiting Design
 
-BackendForge includes an in-memory sliding-window rate limiter implemented in [ClientRateLimiter](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/ratelimit/ClientRateLimiter.java) and [RateLimitInterceptor](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/ratelimit/RateLimitInterceptor.java):
+BackendForge includes an in-memory, synchronized sliding-window rate limiter implemented in [ClientRateLimiter](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/ratelimit/ClientRateLimiter.java) and [RateLimitInterceptor](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/ratelimit/RateLimitInterceptor.java):
 
-* **Protected Routes**: Rate limiting applies to `POST /api/v1/auth/login` and `POST /api/v1/auth/register` (default: 30 requests per 60-second window).
-* **Table Capacity**: Automatically tracks up to 10,000 active client windows in memory (`RATE_LIMIT_MAX_ENTRIES`). Expired entries are evicted automatically.
+* **Protected Routes**: Rate limiting applies to authentication endpoints: `POST /api/v1/auth/login` and `POST /api/v1/auth/register` (default: 30 requests per 60-second window).
+* **Table Capacity & Eviction**: Tracks active client windows in memory up to a default capacity of 10,000 client entries (`RATE_LIMIT_MAX_ENTRIES` / `backendforge.rate-limit.max-entries`). Stale, expired entries are evicted automatically as new requests are checked.
+* **Capacity Saturation Behavior**: If the in-memory window table reaches capacity due to a sudden volume of unique client addresses within an active window, requests from new, unrecorded client addresses may receive an HTTP 429 (`RATE_LIMIT_EXCEEDED`) response until expired entries are cleaned up. Existing recorded clients within their permitted window continue normally.
 
-### Architecture Limitations
+### Architecture Limitations & Multi-Instance Deployments
 
-1. **Instance-Local**: Counters are stored entirely in local JVM memory. Counters are **not shared** across horizontally scaled application replicas and reset when the application restarts.
-2. **Direct Remote Address**: [RateLimitInterceptor](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/ratelimit/RateLimitInterceptor.java) calls `request.getRemoteAddr()` directly to identify clients.
+1. **In-Memory & Instance-Local**: Rate-limit counters are held in local JVM memory. Counters are **not shared** across horizontally scaled application replicas and reset when an application instance restarts.
+2. **Multi-Instance Strategy**: For distributed, clustered, or multi-replica production deployments, operators should implement an appropriate shared or edge-level rate-limiting strategy (such as Cloudflare, AWS WAF, an API gateway rate limiter, or an external Redis-backed distributed limiter) to enforce consistent global request thresholds across all nodes.
+3. **Direct Remote Address**: [RateLimitInterceptor](file:///c:/Users/AnkitAccess/Downloads/BackendForge-main/src/main/java/com/thecreatorco/backendforge/ratelimit/RateLimitInterceptor.java) calls `request.getRemoteAddr()` directly to identify clients.
 
 ### Reverse Proxy & Forwarded Header Considerations
 
@@ -545,22 +565,28 @@ When deploying BackendForge behind a reverse proxy, load balancer, or CDN (such 
 1. **The Shared Proxy IP Problem**:
    Because `request.getRemoteAddr()` returns the immediate TCP socket peer, it will see the IP address of the reverse proxy, not the originating client. If left unconfigured, **all incoming users will share a single rate-limiting bucket**, leading to false-positive rate limit rejections (`HTTP 429`).
 2. **Do Not Trust Arbitrary Forwarded Headers**:
-   Reading client-supplied `X-Forwarded-For` headers directly without a trusted proxy is unsafe. Attackers can forge arbitrary `X-Forwarded-For` header values to bypass rate limits or pollute in-memory tables.
+   Reading client-supplied `X-Forwarded-For` headers directly without a trusted proxy is unsafe. Attackers can forge arbitrary `X-Forwarded-For` header values to bypass rate limits or pollute in-memory tables. Forwarded headers must only be processed when received from verified, trusted proxies.
 3. **Production Reverse Proxy Configuration**:
-   BackendForge does **not** enable `server.forward-headers-strategy` by default. When deploying behind a trusted reverse proxy:
-   * Configure Spring Boot to process proxy headers safely:
+   BackendForge does **not** enable `server.forward-headers-strategy` unconditionally by default. When deploying behind a trusted reverse proxy, operators must configure proxy handling intentionally:
+   * **Framework Forward Headers Strategy**:
+     If your ingress infrastructure terminates SSL and properly strips untrusted client headers before proxying:
      ```yaml
      server:
-       forward-headers-strategy: framework
+       forward-headers-strategy: framework # or native
      ```
-   * Or configure Tomcat's trusted internal proxies:
+   * **Tomcat Remote IP Valve (with Verified Proxy Topology)**:
+     When using embedded Tomcat behind a trusted proxy, configure explicit trusted IP ranges matching your verified infrastructure:
      ```yaml
      server:
        tomcat:
          remoteip:
-           internal-proxies: "10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(1[6-9]|2[0-9]|3[0-1])\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3}"
+           remote-ip-header: x-forwarded-for
+           protocol-header: x-forwarded-proto
+           # Replace with your verified proxy IP addresses or CIDR blocks:
+           # internal-proxies: "10\\.0\\.0\\.\\d{1,3}"
      ```
-   * **Network Isolation**: Ensure your network firewall prevents public traffic from reaching the backend port directly, guaranteeing that only the trusted reverse proxy can forward requests.
+     > **Security Warning**: Do not insert guessed proxy CIDRs or blindly copy unverified private network ranges. Ensure the trusted proxy configuration matches your exact deployment topology so untrusted clients cannot spoof remote addresses.
+   * **Network Isolation**: Ensure your network firewall or security group prevents public traffic from reaching the backend port directly, guaranteeing that only the trusted reverse proxy can forward requests.
 
 ---
 

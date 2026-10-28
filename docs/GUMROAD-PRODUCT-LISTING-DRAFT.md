@@ -29,7 +29,7 @@ Stop wasting 40+ hours writing repetitive boilerplate for every new backend.
 
 **BackendForge** is a production-engineered Java 21 and Spring Boot 3.5.6 REST API starter kit designed for solopreneurs, SaaS founders, agency engineers, and freelance backend developers who demand clean architecture, rigorous security defaults, and automated database migrations from day one.
 
-Unlike basic tutorials, BackendForge gives you a battle-tested foundation: stateless HMAC-SHA256 JWT authentication with constant-time failure equalization, in-memory sliding-window rate limiting, forward-only PostgreSQL Flyway migrations, structured correlation IDs (`X-Correlation-ID`) for distributed tracing, non-root multi-stage Docker containerization, OpenAPI 3.0 / Swagger UI documentation, and a comprehensive automated test suite (98 tests, including real PostgreSQL integration tests via Testcontainers).
+Unlike basic tutorials, BackendForge gives you a battle-tested foundation: stateless HMAC-SHA256 JWT authentication with constant-time failure equalization, in-memory sliding-window rate limiting, forward-only PostgreSQL Flyway migrations, structured correlation IDs (`X-Correlation-ID`) for distributed tracing, non-root multi-stage Docker containerization, OpenAPI 3.0 / Swagger UI documentation, and an automated test suite comprising 57 fast unit tests and real PostgreSQL integration tests via Testcontainers.
 
 Download the clean source code, run `./mvnw clean test`, and start shipping your real business logic in minutes.
 
@@ -68,15 +68,15 @@ BackendForge was built specifically for developers who value time, code quality,
 ### 5.2 Authentication & Security Hardening
 * **Stateless JWT Security Filter Chain**: HMAC-SHA256 (`HS256`) access token signing and verification using `io.jsonwebtoken:jjwt` (0.12.6).
 * **Strict Secret Validation**: Enforces Base64-encoded signing keys of at least 32 bytes (256 bits) with mandatory startup termination if weak or missing.
-* **BCrypt Password Hashing**: Adaptive cost factor (`BCryptPasswordEncoder(12)`) for high-entropy credential storage.
-* **Timing Equalization**: Registration and login endpoints execute synthetic password verifications on non-existent accounts to eliminate user enumeration through response-time variance.
+* **BCrypt Password Hashing**: BCrypt password hashing with an adaptive work factor for high-entropy credential storage.
+* **Timing Equalization**: Registration (`POST /api/v1/auth/register`) and login (`POST /api/v1/auth/login`) endpoints execute synthetic password verifications on non-existent accounts to eliminate user enumeration through response-time variance.
 * **UTF-8 Byte Boundary Validation**: Enforces BCrypt's 72-byte truncation boundary prior to hashing, rejecting silently truncated passwords.
 * **Standardized Error Handling**: Centralized `GlobalExceptionHandler` and RFC-compliant `ApiError` payloads that completely prevent stack traces or database internals from leaking to API clients.
 
 ### 5.3 Reliability, Diagnostics & Documentation
-* **Sliding-Window Rate Limiting**: In-memory, lock-free sliding-window limiter on sensitive endpoints (`/api/v1/users/register`, `/api/v1/users/login`) with automatic stale-entry cleanup.
+* **Sliding-Window Rate Limiting**: In-memory, synchronized sliding-window rate limiter protecting authentication endpoints (`POST /api/v1/auth/register`, `POST /api/v1/auth/login`) with automatic stale-entry cleanup. The limiter is instance-local, with operational limits designed for single nodes and documented guidance for multi-replica deployments (where edge or shared rate limiting should be applied).
 * **Correlation IDs & Distributed Tracing**: `CorrelationIdFilter` captures or generates safe, sanitized UUID correlation IDs (`X-Correlation-ID`), propagates them to SLF4J MDC, and echoes them in HTTP responses.
-* **OpenAPI 3.0 & Swagger UI**: Interactive API documentation automatically exposed at `/swagger-ui.html` and OpenAPI JSON at `/v3/api-docs`.
+* **OpenAPI 3.0 & Swagger UI**: Interactive API documentation automatically exposed at `/swagger-ui.html` and OpenAPI JSON at `/v3/api-docs`, documenting public authentication routes and the protected user profile route (`GET /api/v1/users/me`).
 * **Spring Boot Actuator Probes**: Liveness (`/actuator/health/liveness`) and readiness (`/actuator/health/readiness`) health probes ready for Kubernetes or Docker container orchestration.
 
 ### 5.4 Containerization & Local Development
@@ -85,8 +85,12 @@ BackendForge was built specifically for developers who value time, code quality,
 * **Zero Host-Maven Requirement**: Fully bundled Maven Wrapper (`./mvnw` and `.\mvnw.cmd`) ensures reproducible builds across Linux, macOS, and Windows.
 
 ### 5.5 Comprehensive Automated Test Suite
-* **98 Automated Tests**: 57 unit tests and 41 integration tests passing with zero failures.
-* **Testcontainers Integration**: Real integration tests (`UserAuthenticationIntegrationTest`, `DatabaseMigrationIntegrationTest`, `RateLimitIntegrationTest`, `SecurityConfigIntegrationTest`) executing against ephemeral PostgreSQL 15 containers.
+* **Automated Unit & Integration Test Suite**: 57 fast, standalone unit tests covering JWT security, validation, error handling, correlation IDs, and rate limiting without requiring Docker, alongside containerized integration tests for real database validation.
+* **Testcontainers Integration**: Real integration tests executing against ephemeral PostgreSQL containers via Testcontainers when Docker is available, covering four verified test classes:
+  - `DatabaseMigrationIntegrationTest` (`com.thecreatorco.backendforge`)
+  - `UserAuthenticationIntegrationTest` (`com.thecreatorco.backendforge.user`)
+  - `UserRegistrationIntegrationTest` (`com.thecreatorco.backendforge.user`)
+  - `UserRepositoryIntegrationTest` (`com.thecreatorco.backendforge.user`)
 
 ---
 
@@ -108,7 +112,7 @@ BackendForge-v1.0.1/
 │   │       ├── db/migration/     # Flyway SQL schema scripts (V1__create_users_table.sql)
 │   │       ├── application.yml   # Default local development configuration
 │   │       └── application-prod.yml # Strict production profile overrides
-│   └── test/                     # 98 unit and Testcontainers integration tests
+│   └── test/                     # Comprehensive unit and Testcontainers integration test suite
 ├── scripts/                      # Verified packaging and release audit scripts
 ├── docs/                         # Architecture guides, deployment runbooks, checklists
 ├── .mvn/wrapper/                 # Bundled Maven wrapper binaries and configuration

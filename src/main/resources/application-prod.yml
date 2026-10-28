@@ -23,3 +23,27 @@ backendforge:
     jwt-issuer: ${JWT_ISSUER}
     jwt-audience: ${JWT_AUDIENCE}
     jwt-expiration-seconds: ${JWT_EXPIRATION_SECONDS}
+
+# =============================================================================
+# Optional Reverse Proxy / Forwarded Headers Configuration
+# =============================================================================
+# IMPORTANT SECURITY NOTICE:
+# Forwarded headers (such as X-Forwarded-For or X-Forwarded-Proto) must ONLY
+# be processed when requests arrive through verified, trusted reverse proxies
+# or load balancers in your production deployment topology.
+#
+# NEVER trust arbitrary client-supplied forwarded headers unconditionally,
+# as untrusted clients can forge headers to spoof remote IP addresses.
+#
+# If running behind a known reverse proxy (e.g., AWS ALB, NGINX, Cloudflare),
+# uncomment and configure the appropriate strategy below, replacing placeholder
+# values with your verified proxy IP addresses or CIDR blocks:
+#
+# server:
+#   forward-headers-strategy: framework # or 'native'
+#   tomcat:
+#     remoteip:
+#       remote-ip-header: x-forwarded-for
+#       protocol-header: x-forwarded-proto
+#       # Specify the exact IP addresses or CIDR ranges of your verified proxies:
+#       # internal-proxies: "10\\.0\\.0\\.\\d{1,3}"
