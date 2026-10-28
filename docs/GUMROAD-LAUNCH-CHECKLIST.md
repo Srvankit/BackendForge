@@ -113,9 +113,9 @@
 - [ ] **5.3. Package Customer Source Archive**:
   - Run the automated, leak-proof packaging script targeting the reviewed candidate commit SHA:
     ```powershell
-    .\scripts\package-source.ps1 -ReleaseRef "<commit-sha>"
+    .\scripts\package-source.ps1 -ReleaseRef "<commit-sha>" -ArchiveName "BackendForge-v1.0.1.zip" -ExpectedVersion "1.0.1"
     ```
-  - Verify that the output archive is created at `target/dist/BackendForge-<sha>.zip` (or renamed to `BackendForge-v1.0.1.zip`).
+  - Verify that the output archive is created at `target/dist/BackendForge-v1.0.1.zip`.
 - [ ] **5.4. Run Package Audit Verification**:
   - Audit the generated archive using the verification script:
     ```powershell

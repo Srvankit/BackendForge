@@ -56,7 +56,13 @@ param(
     [switch]$AllowDirty,
 
     [Parameter(Mandatory = $false)]
-    [string]$Prefix = ""
+    [string]$Prefix = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$ArchiveName = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$ExpectedVersion = ""
 )
 
 Set-StrictMode -Version Latest
@@ -253,6 +259,11 @@ Write-Host "POM Version in Ref: $pomVersion" -ForegroundColor Yellow
 # Evaluate validation findings
 $hasErrors = $false
 
+if (-not [string]::IsNullOrWhiteSpace($ExpectedVersion) -and $pomVersion -ne $ExpectedVersion) {
+    Write-Host "`n[ERROR] Target commit tree POM version ($pomVersion) does not match expected version ($ExpectedVersion)." -ForegroundColor Red
+    $hasErrors = $true
+}
+
 if ($missingRequired.Count -gt 0) {
     Write-Host "`n[ERROR] Required distribution files are MISSING in reference '$ReleaseRef' ($commitSha):" -ForegroundColor Red
     foreach ($m in $missingRequired) {
@@ -282,14 +293,22 @@ if ($hasErrors -and -not $DryRun) {
 
 # 10. Set prefix and output path
 $cleanRefName = $ReleaseRef -replace '[\\/:]', '-'
+if ([string]::IsNullOrWhiteSpace($ArchiveName)) {
+    $ArchiveName = "BackendForge-$cleanRefName.zip"
+}
+if (-not $ArchiveName.EndsWith(".zip", [System.StringComparison]::OrdinalIgnoreCase)) {
+    $ArchiveName = "$ArchiveName.zip"
+}
+
 if ([string]::IsNullOrWhiteSpace($Prefix)) {
-    $Prefix = "BackendForge-$cleanRefName/"
+    $baseArchiveName = [System.IO.Path]::GetFileNameWithoutExtension($ArchiveName)
+    $Prefix = "$baseArchiveName/"
 }
 if (-not $Prefix.EndsWith("/")) {
     $Prefix = "$Prefix/"
 }
 
-$archiveName = "BackendForge-$cleanRefName.zip"
+$archiveName = $ArchiveName
 $archivePath = Join-Path $OutputDir $archiveName
 $checksumPath = "$archivePath.sha256"
 

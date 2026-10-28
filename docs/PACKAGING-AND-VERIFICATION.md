@@ -71,7 +71,7 @@ To prevent human error and guarantee reproducible release packages, BackendForge
 .\scripts\package-source.ps1 -ReleaseRef "v1.0.0" -DryRun -AllowDirty
 
 # 2. Package a future reviewed commit/tag (clean tree):
-.\scripts\package-source.ps1 -ReleaseRef "<commit-sha-or-v1.0.1>"
+.\scripts\package-source.ps1 -ReleaseRef "<commit-sha>" -ArchiveName "BackendForge-v1.0.1.zip" -ExpectedVersion "1.0.1"
 ```
 
 #### Linux / macOS:
@@ -81,7 +81,7 @@ chmod +x ./scripts/*.sh
 ./scripts/package-source.sh --ref "v1.0.0" --dry-run --allow-dirty
 
 # 2. Package a future reviewed commit/tag (clean tree):
-./scripts/package-source.sh --ref "<commit-sha-or-v1.0.1>"
+./scripts/package-source.sh --ref "<commit-sha>" --archive-name "BackendForge-v1.0.1.zip" --expected-version "1.0.1"
 ```
 
 ---

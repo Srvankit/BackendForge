@@ -22,24 +22,28 @@ OUTPUT_DIR="target/dist"
 DRY_RUN=false
 ALLOW_DIRTY=false
 PREFIX=""
+ARCHIVE_NAME=""
+EXPECTED_VERSION=""
 
 print_usage() {
     cat <<EOF
 Usage: $0 --ref <git-ref> [options]
 
 Required Arguments:
-  -r, --ref <git-ref>       Git commit SHA, tag, or branch to package (e.g. v1.0.1, commit-sha)
+  -r, --ref <git-ref>               Git commit SHA, tag, or branch to package (e.g. v1.0.1, commit-sha)
 
 Optional Arguments:
-  -o, --output-dir <dir>    Destination directory for ZIP (default: target/dist)
-  -d, --dry-run             Audit target reference without creating an archive
-  --allow-dirty             Proceed even if local workspace has uncommitted changes
-  -p, --prefix <prefix>     Internal archive directory prefix (default: BackendForge-<ref>/)
-  -h, --help                Show this help message
+  -o, --output-dir <dir>            Destination directory for ZIP (default: target/dist)
+  -a, --archive-name <name>         Output archive filename (default: BackendForge-<ref>.zip)
+  -p, --prefix <prefix>             Internal archive directory prefix (default: BackendForge-<ref>/)
+  -e, --expected-version <version>  Verify POM version in commit tree matches this value
+  -d, --dry-run                     Audit target reference without creating an archive
+  --allow-dirty                     Proceed even if local workspace has uncommitted changes
+  -h, --help                        Show this help message
 
 Examples:
   $0 --ref v1.0.0 --dry-run --allow-dirty
-  $0 --ref <reviewed-commit-sha> --output-dir releases
+  $0 --ref <commit-sha> --archive-name BackendForge-v1.0.1.zip
 EOF
 }
 
@@ -53,6 +57,18 @@ while [[ $# -gt 0 ]]; do
             OUTPUT_DIR="$2"
             shift 2
             ;;
+        -a|--archive-name)
+            ARCHIVE_NAME="$2"
+            shift 2
+            ;;
+        -p|--prefix)
+            PREFIX="$2"
+            shift 2
+            ;;
+        -e|--expected-version)
+            EXPECTED_VERSION="$2"
+            shift 2
+            ;;
         -d|--dry-run)
             DRY_RUN=true
             shift
@@ -60,10 +76,6 @@ while [[ $# -gt 0 ]]; do
         --allow-dirty)
             ALLOW_DIRTY=true
             shift
-            ;;
-        -p|--prefix)
-            PREFIX="$2"
-            shift 2
             ;;
         -h|--help)
             print_usage
@@ -248,6 +260,17 @@ done <<< "$TRACKED_FILES"
 
 HAS_ERRORS=false
 
+# 8. Check POM version in target commit
+POM_XML_RAW=$(git show "${COMMIT_SHA}:pom.xml" 2>/dev/null || true)
+POM_VERSION=$(echo "$POM_XML_RAW" | grep -m2 '<version>' | tail -n1 | sed -E 's/.*<version>([^<]+)<\/version>.*/\1/' || true)
+echo "POM Version in Ref: ${POM_VERSION:-UNKNOWN}"
+
+if [[ -n "$EXPECTED_VERSION" && "$POM_VERSION" != "$EXPECTED_VERSION" ]]; then
+    echo ""
+    echo "[ERROR] Target commit tree POM version ($POM_VERSION) does not match expected version ($EXPECTED_VERSION)." >&2
+    HAS_ERRORS=true
+fi
+
 if [[ ${#MISSING_REQUIRED[@]} -gt 0 ]]; then
     echo ""
     echo "[ERROR] Required distribution files are MISSING in reference '$RELEASE_REF':" >&2
@@ -274,12 +297,17 @@ fi
 
 # 9. Prefix and destination paths
 CLEAN_REF=$(echo "$RELEASE_REF" | tr '/\\:' '-')
+if [[ -z "$ARCHIVE_NAME" ]]; then
+    ARCHIVE_NAME="BackendForge-$CLEAN_REF.zip"
+fi
+[[ "$ARCHIVE_NAME" != *.zip ]] && ARCHIVE_NAME="$ARCHIVE_NAME.zip"
+
 if [[ -z "$PREFIX" ]]; then
-    PREFIX="BackendForge-$CLEAN_REF/"
+    BASE_NAME="${ARCHIVE_NAME%.zip}"
+    PREFIX="$BASE_NAME/"
 fi
 [[ "$PREFIX" != */ ]] && PREFIX="$PREFIX/"
 
-ARCHIVE_NAME="BackendForge-$CLEAN_REF.zip"
 ARCHIVE_PATH="$OUTPUT_DIR/$ARCHIVE_NAME"
 CHECKSUM_PATH="$ARCHIVE_PATH.sha256"
 
